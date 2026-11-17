@@ -26,19 +26,15 @@ async function safeFetch(link: string | undefined): Promise<Metrics | null>{
             const response = await fetch(link);
             if (!response.ok) {
                 throw new Error(`Ошибка сервера: ${response.status} ${response.statusText}`);
-            }
-            const endTime = performance.now()
-            const duration = Math.round(endTime - startTime) / 1000
-           
+            }           
             const buffer = await response.arrayBuffer()
             const sizeBytes = buffer.byteLength;
 
+            const endTime = performance.now()
+            const duration = Math.round(endTime - startTime) / 1000
+
             const speed = duration > 0 ? Math.round(sizeBytes / duration) : sizeBytes;
             const speedKBs = ((speed / 1024) * 100)/100
-
-            
-
-            
             return {
                 duration,
                 sizeBytes,
@@ -55,5 +51,16 @@ async function safeFetch(link: string | undefined): Promise<Metrics | null>{
 async function loopFetch() {
     for (let i = 0; i < 10; i++){
         const data = await safeFetch(adress);
+        console.log(`--- попытка № ${i + 1} ---`)
+        if (data){
+            console.log(`Скорость: ${data.speedKBs} KБ/с`)
+            console.log(`Время: ${data.duration} с`)
+            console.log(`Объём данных: ${data.sizeBytes} Б`)
+        }else{
+            console.error(`Запрос провален`)
+        }
     }
 }
+
+
+loopFetch()
